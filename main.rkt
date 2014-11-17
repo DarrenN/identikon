@@ -1,12 +1,12 @@
 #lang racket/base
 
-(require racket/cmdline
-         racket/list
-         "identikon.rkt")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Command line handling for Identikon
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require racket/cmdline
+         racket/list
+         "identikon.rkt")
 
 (define size-flags (make-parameter null))
 (define rules-set (make-parameter null))
@@ -33,4 +33,4 @@
   [(empty? (name)) (printf "No name provided to process, -n ~n")])
 
 (for ([s (size-flags)])
-  (identikon (string->number s) (string->number s) (name)))
+  (identikon (string->number s) (string->number s) (name) (first (rules-set))))
