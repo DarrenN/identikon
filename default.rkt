@@ -1,10 +1,18 @@
 #lang racket/base
 
+; Default rule-set for identikon.
+; All rule-sets must provide a single function, draw-rules
+; which is called by identikon. This function should always
+; take the following arguments: width height user filename
+
+(provide draw-rules)
+
+; ———————————
+; implementation
+
 (require racket/list
          2htdp/image
          "utils.rkt")
-
-(provide draw-rules)
 
 ; Data structs
 (struct point (x y))
@@ -67,7 +75,7 @@
             [(odd? p) (odd hue border cell i c)]))))
 
 ; The main entry point for creating an identikon
-(define (draw-rules width height user)
+(define (draw-rules width height user filename)
   (let* ([canvas (make-canvas width height)]
          [color-range (build-color-range user)]
          [points (chunk-mirror (drop user 2) 3)]
@@ -79,5 +87,5 @@
                               [color-row color-range]
                               [i count])
                      (row->image (draw-rule row color-row i border cell)))])
-      (overlay (rotate 180 (foldr (λ (r g) (above r g)) (first circles) (reverse (rest circles))))
-               base))))
+      (save-image (overlay (rotate 180 (foldr (λ (r g) (above r g)) (first circles) (reverse (rest circles))))
+                           base) filename))))
