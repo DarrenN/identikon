@@ -1,14 +1,21 @@
 #lang racket/base
-(require racket/list
-         2htdp/image 
-         css-tools/colors
-         sugar)
+
+; A grab-bag of helper fucntions for identikon
 
 (provide build-color-range
          make-rgb
          double?
          row->image
-         chunk-mirror)
+         chunk-mirror
+         chunk-dupe)
+
+; ———————————
+; implementation
+
+(require racket/list
+         2htdp/image 
+         css-tools/colors
+         sugar)
 
 ; Grab the first 4 numbers from the user list and use them to generate a list of 
 ; color values for points in the indentikon
@@ -50,3 +57,11 @@
   (let ([chunked (slice-at xs n)])
     (map (λ (x)
            (flatten (cons x (reverse x)))) chunked)))
+
+; Partition list into lists of n elements
+; example: (chunk-mirror 3 '(1 2 3 4 5 6)) returns
+; '((1 2 3 3 2 1) (4 5 6 6 5 4))
+(define (chunk-dupe xs n)
+  (let ([chunked (slice-at xs n)])
+    (map (λ (x)
+           (flatten (cons x x))) chunked)))
