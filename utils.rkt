@@ -7,12 +7,14 @@
          double?
          row->image
          chunk-mirror
-         chunk-dupe)
+         chunk-dupe
+         string-pairs)
 
 ; ———————————
 ; implementation
 
 (require racket/list
+         racket/string
          2htdp/image 
          css-tools/colors
          sugar)
@@ -41,7 +43,11 @@
 ; Is a number a double? ex: 33, 66
 (define (double? x)
   (let ([nums (string->list (number->string x))])
-    (eq? (first nums) (last nums))))
+    (cond
+      [(not (even? (length nums))) #f]
+      [(eq? (length nums) 2) (eq? (first nums) (last nums))]
+      [else (let-values ([(front back) (split-at nums (quotient (length nums) 2))])
+              (string=? (list->string front) (list->string back)))])))
 
 ; Drop images in a list next to one another 
 (define (row->image row)
@@ -49,6 +55,16 @@
     [(empty? row) empty-image]
     [else         (beside (first row) 
                           (row->image (rest row)))]))
+
+; Convert a string into a list of string pairs
+; (string-pairs "Apple") returns ("Ap" "pl" "e")
+(define (string-pairs s)
+    (define (loop p l)
+      (cond
+        [(empty? l) (reverse p)]
+        [(eq? (length l) 1) (reverse (cons (list->string l) p))]
+        [else (loop (cons (list->string (take l 2)) p) (drop l 2))]))
+    (loop '() (string->list (string-join (string-split s) ""))))
 
 ; Partition list into lists of n elements
 ; example: (chunk-mirror 3 '(1 2 3 4 5 6)) returns

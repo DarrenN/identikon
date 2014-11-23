@@ -9,7 +9,8 @@
          racket/list
          racket/string
          openssl/sha1
-         2htdp/image)
+         2htdp/image
+         "utils.rkt")
 
 ; ———————————
 ; implementation
@@ -44,15 +45,10 @@
     [(string=? "png" type) (save-image rendered filename)]
     [else (error 'save-identicon "failed because could not not save file type of ~a" type)]))
 
-; Split a SHA1 hash into a list of pairs ex: '("7b" "3b" ... )
-(define (split-hash h)
-  (for/list ([i (range 0 (string-length h) 2)])
-    (substring h i (+ i 2))))
-
 ; Turn a SHA1 hash into a list of base 10 numbers
 (define (process-user user) 
   (map (λ (x) (string->number x 16)) 
-       (split-hash (sha1 (open-input-bytes (string->bytes/utf-8 user))))))
+       (string-pairs (sha1 (open-input-bytes (string->bytes/utf-8 user))))))
 
 ; Identikon - build an identicon of a specific size based on username and
 ; using a rule-set. Will automatically drop the identicon in the repl unless
