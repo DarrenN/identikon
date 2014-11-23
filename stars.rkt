@@ -72,13 +72,13 @@
                      radius 
                      "solid" 
                      (make-rgb color "60%" (string-join (list (number->string (- 60 d)) "%") ""))))))
-      
+
 ; The main entry point for creating an identikon
 ; take 20 digits of user and create a new list of hues based on them
 ; create a list of 20 sizes (inner size / 20)
 ; iterate list and draw a circle of hue size for each
 
-(define (draw-rules width height user filename)
+(define (draw-rules width height user)
   (let* ([canvas (make-canvas width height)]
          [sizes (make-sizes canvas user)]
          [color (first user)]
@@ -92,5 +92,5 @@
     (let ([circles (for/list ([digit user]
                               [size sizes])
                      (draw-rule digit size sides color))])
-      (save-image (crop/align "center" "center" width height (overlay (foldr (λ (r g) (overlay r g)) (first circles) (rest circles))
-                                                  base)) filename))))
+      (crop/align "center" "center" width height (overlay (foldr (λ (r g) (overlay r g)) (first circles) (rest circles))
+                                                          base)))))

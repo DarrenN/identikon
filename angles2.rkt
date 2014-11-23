@@ -60,7 +60,7 @@
             [(eq? p 3) (even hue cell "30%")]))))
 
 ; The main entry point for creating an identikon
-(define (draw-rules width height user filename)
+(define (draw-rules width height user)
   (let* ([canvas (make-canvas width height)]
          [color-range (build-color-range user)]
          [points (slice-at (drop user 4) 4)]
@@ -72,5 +72,5 @@
                               [color-row color-range]
                               [i count])
                      (row->image (draw-rule row color-row i border cell)))])
-      (save-image (overlay (rotate 180 (foldr (λ (r g) (above r g)) (first circles) (reverse (rest circles))))
-                           base) filename))))
+      (overlay (rotate 180 (foldr (λ (r g) (above r g)) (first circles) (reverse (rest circles))))
+               base))))
