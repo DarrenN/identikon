@@ -22,19 +22,27 @@
 (define (load-plug-in file)
   (let ([ns (make-base-empty-namespace)])
     (namespace-attach-module (namespace-anchor->empty-namespace a)
-                             'racket/base
+                             '2htdp/image
                               ns)
     (parameterize ([current-namespace ns])
       (dynamic-require file 'draw-rules))))
 
 ; Create a filename and check if the file already exists, if so
 ; append a timestamp
-(define (make-filename name size ext)
-  (let* ([sizename (string-join (list name (number->string size)) "_")]
+(define (make-filename name size extension)
+  (let* ([ext (string-join (list "." extension) "")]
+         [sizename (string-join (list name (number->string size)) "_")]
          [filename (string-join (list sizename ext) "")])
     (if (file-exists? filename) 
         (string-join (list sizename "_" (number->string (date->seconds (current-date))) ext) "")
         filename)))
+
+; Save the file based on type - png or svg
+(define (save-identicon filename type rendered)
+  (cond 
+    [(string=? "svg" type) (save-svg-image rendered filename)]
+    [(string=? "png" type) (save-image rendered filename)]
+    [else (error 'save-identicon "failed because could not not save file type of ~a" type)]))
 
 ; Split a SHA1 hash into a list of pairs ex: '("7b" "3b" ... )
 (define (split-hash h)
@@ -47,18 +55,23 @@
        (split-hash (sha1 (open-input-bytes (string->bytes/utf-8 user))))))
 
 ; Identikon - build an identicon of a specific size based on username and
-; using a rule-set.
+; using a rule-set. Will automatically drop the identicon in the repl unless
+; you tell it to save
 ;
 ; ex: ;(identikon 300 300 "dfsdf")
 ;
-(define (identikon width height username [rules "default.rkt"])
+(define (identikon width height username [rules "default"] [type #f])
   (let* ([processed-user (process-user username)]
-         [label (string-join (list "Identikon ::" username))])
-
-    ; create a canvas to draw on
-    (define filename (make-filename username width ".png"))
+         [label (string-join (list "Identikon ::" username))]
+         [rule-file (string-join (list rules "rkt") ".")])
     
     ; Load rules file if provided
-    (set! draw-rules (load-plug-in rules))
- 
-    (draw-rules width height processed-user filename)))
+    (set! draw-rules (load-plug-in rule-file))
+    
+    ; Create identicon
+    (define rendered (draw-rules width height processed-user))
+       
+    ; Either save the identicon or output to REPL
+    (if type
+        (save-identicon (make-filename username width type) type rendered)
+        rendered)))

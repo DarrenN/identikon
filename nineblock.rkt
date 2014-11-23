@@ -216,9 +216,9 @@
              (third (third positions))))))
 
 ; The main entry point for creating an identikon
-(define (draw-rules width height user filename)
+(define (draw-rules width height user)
   (let* ([canvas (make-canvas width height)]
          [color-bg (make-rgb (sixth user) "60%" "90%")]
          [base (square width "solid" color-bg)])
-    (save-image (overlay (make-nine-step canvas user color-bg)
-                         base) filename)))
+    (overlay (make-nine-step canvas user color-bg)
+                         base)))
