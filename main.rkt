@@ -9,8 +9,9 @@
          "identikon.rkt")
 
 (define size-flags (make-parameter null))
-(define rules-set (make-parameter null))
+(define rules-set (make-parameter '("default")))
 (define name (make-parameter null))
+(define ext (make-parameter "png"))
 
 (define make-identikon
   (command-line
@@ -19,10 +20,15 @@
    [("-n" "--name") nm
                     "Username to convert to identikon"
                     (name nm)]
-   #:once-any
+   
+   [("-t" "--type") ty
+                    "File type: png or svg"
+                    (ext ty)]
+   
    [("-r" "--rules") rs
                      "Use specific rules"
                      (rules-set (cons rs (rules-set)))]
+   
    #:multi
    [("-s" "--size") sz
                     "Add a square size to generate"
@@ -33,4 +39,4 @@
   [(empty? (name)) (printf "No name provided to process, -n ~n")])
 
 (for ([s (size-flags)])
-  (identikon (string->number s) (string->number s) (name) (first (rules-set))))
+  (identikon (string->number s) (string->number s) (name) (first (rules-set)) (ext)))
