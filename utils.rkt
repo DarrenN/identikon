@@ -76,7 +76,7 @@
 
 ; Partition list into lists of n elements
 ; example: (chunk-mirror 3 '(1 2 3 4 5 6)) returns
-; '((1 2 3 3 2 1) (4 5 6 6 5 4))
+; '((1 2 3 1 2 3) (4 5 6 4 5 6))
 (define (chunk-dupe xs n)
   (let ([chunked (slice-at xs n)])
     (map (λ (x)

@@ -49,3 +49,17 @@
               (= (length cm) (length (slice-at lst (+ 1 num)))))))
 
 (quickcheck chunk-mirrors-length-is-round)
+
+; chunk dupe returns list items that dupes, so if we split the item list
+; in half both pieces should be equal
+(define chunk-dupe-items-mirrored
+  (property ([lst (arbitrary-list arbitrary-natural)]
+             [num arbitrary-natural])
+            (let ([cm (chunk-dupe lst (+ 1 num))])
+              (not (false? (foldl (λ (x y)
+                                    (let-values ([(f b) (split-at x (quotient (length x) 2))])
+                                      (equal? f b))) 
+                                  #t 
+                                  cm))))))
+
+(quickcheck chunk-dupe-items-mirrored)
