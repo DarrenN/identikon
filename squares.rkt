@@ -15,6 +15,13 @@
          sugar
          "utils.rkt")
 
+; Constants
+(define PERCENT-DIVISOR 2.55)
+(define MIN-SATURATION 30)
+(define MAX-SATURATION 80)
+(define MIN-LIGHTNESS 50)
+(define MAX-LIGHTNESS 80)
+
 ; Data structs
 (struct point (x y))
 (struct dim (w h))
@@ -44,6 +51,23 @@
     (map (λ (x)
            (flatten (cons x (reverse (take x 2))))) chunked)))
 
+; Keep a number with a range of floor and ceiling
+(define (constrain-number n floor ceiling)
+  (cond
+    [(and (<= n ceiling) (>= n floor)) n]
+    [(< n floor) floor]
+    [(> n ceiling) ceiling]))
+
+; Use last three numbers from user list to generate an rgb color, keeping
+; the saturation and lightness within constraints
+(define (build-color user)
+  (let* ([hue (last user)]
+         [sat (->int (/ (last (take user (- (length user) 1))) PERCENT-DIVISOR))]
+         [lig (->int (/ (last (take user (- (length user) 2))) PERCENT-DIVISOR))]
+         [ssat (format "~a%" (constrain-number sat MIN-SATURATION MAX-SATURATION))]
+         [slig (format "~a%" (constrain-number lig MIN-LIGHTNESS MAX-LIGHTNESS))])
+    (make-rgb hue ssat slig)))
+
 ;;;;;;;;;;;;;;;;;;;
 ; Shapes
 ;;;;;;;;;;;;;;;;;;;
@@ -71,7 +95,7 @@
 ; The main entry point for creating an identikon
 (define (draw-rules width height user)
   (let* ([canvas (make-canvas width height)]
-         [color (make-rgb (last user) "50%")]
+         [color (build-color user)]
          [points (chunk-mirror2 (take user 15) 3)]
          [cell (make-cell canvas 5)]
          [border (canvas-border canvas)]
