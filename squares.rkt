@@ -48,25 +48,16 @@
 ; Shapes
 ;;;;;;;;;;;;;;;;;;;
 
-; Solid circle
-(define (even hue border cell i c)
+; even = solid square
+(define (even color border cell i c)
   (let* ([pos (point (+ border (* (dim-w cell) i)) (+ border (* (dim-h cell) c)))]
-         [offset (/ border 2)]
-         [color (make-rgb hue "50%")])
+         [offset (/ border 2)])
     (square (dim-w cell) "solid" color)))
 
-; Empty circle
-(define (double hue border cell i c)
+; odd = white square
+(define (odd color border cell i c)
   (let* ([pos (point (+ border (* (dim-w cell) i)) (+ border (* (dim-h cell) c)))]
-         [offset (/ border 2)]
-         [color (make-rgb hue "50%" "80%")])
-    (square (dim-w cell) "solid" color)))
-
-; Dot
-(define (odd hue border cell i c)
-  (let* ([pos (point (+ border (* (dim-w cell) i)) (+ border (* (dim-h cell) c)))]
-         [offset (/ border 2)]
-         [color (make-rgb hue)])
+         [offset (/ border 2)])
     (square (dim-w cell) "solid" "white")))
 
 ; Drawing a row of shapes
@@ -80,15 +71,14 @@
 ; The main entry point for creating an identikon
 (define (draw-rules width height user)
   (let* ([canvas (make-canvas width height)]
-         [color-range (reverse (build-color-range (reverse user)))]
+         [color (make-rgb (last user) "50%")]
          [points (chunk-mirror2 (take user 15) 3)]
          [cell (make-cell canvas 5)]
          [border (canvas-border canvas)]
          [count (range 0 (length points))]
          [base (square width "solid" "white")])
-    (let ([circles (for/list ([row points]
-                              [color-row color-range]
+    (let ([squares (for/list ([row points]
                               [i count])
-                     (row->image (draw-rule row (first (first color-range)) i border cell)))])
-      (overlay (rotate 180 (foldr (λ (r g) (above r g)) (first circles) (reverse (rest circles))))
+                     (row->image (draw-rule row color i border cell)))])
+      (overlay (rotate 180 (foldr (λ (r g) (above r g)) (first squares) (reverse (rest squares))))
                            base))))
