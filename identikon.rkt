@@ -18,7 +18,7 @@
 (define draw-rules null)
 
 (define-namespace-anchor a)
- 
+
 ; Dynamically load in a rules file
 (define (load-plug-in file)
   (let ([ns (make-base-empty-namespace)])
@@ -34,20 +34,20 @@
   (let* ([ext (string-join (list "." extension) "")]
          [sizename (string-join (list name (number->string size)) "_")]
          [filename (string-join (list sizename ext) "")])
-    (if (file-exists? filename) 
+    (if (file-exists? filename)
         (string-join (list sizename "_" (number->string (date->seconds (current-date))) ext) "")
         filename)))
 
 ; Save the file based on type - png or svg
 (define (save-identicon filename type rendered)
-  (cond 
+  (cond
     [(string=? "svg" type) (save-svg-image rendered filename)]
     [(string=? "png" type) (save-image rendered filename)]
     [else (error 'save-identicon "failed because could not not save file type of ~a" type)]))
 
 ; Turn a SHA1 hash into a list of base 10 numbers
-(define (process-user user) 
-  (map (λ (x) (string->number x 16)) 
+(define (process-user user)
+  (map (λ (x) (string->number x 16))
        (string-pairs (sha1 (open-input-bytes (string->bytes/utf-8 user))))))
 
 ; Identikon - build an identicon of a specific size based on username and
@@ -60,13 +60,13 @@
   (let* ([processed-user (process-user username)]
          [label (string-join (list "Identikon ::" username))]
          [rule-file (string-join (list rules "rkt") ".")])
-    
+
     ; Load rules file if provided
     (set! draw-rules (load-plug-in rule-file))
-    
+
     ; Create identicon
     (define rendered (draw-rules width height processed-user))
-       
+
     ; Either save the identicon or output to REPL
     (if type
         (save-identicon (make-filename username width type) type rendered)
