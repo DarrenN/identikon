@@ -136,30 +136,30 @@
 
 ; Shape 13
 (vector-set! shapes 13 (λ (cell [rot 0] [color "black"] [color-bg "white"])
-                         (overlay/align
-                          "left"
-                          "top"
-                          (rotate (* -1 90 rot)
+                         (rotate (* -1 90 rot)
+                                 (overlay/align
+                                  "left"
+                                  "top"
                                   (rotate 180
                                           (triangle/ass 90
                                                         (/ (dim-w cell) 2)
                                                         (/ (dim-h cell) 2)
                                                         "solid"
-                                                        color)))
-                          (square (dim-w cell) "solid" color-bg))))
+                                                        color))
+                                  (square (dim-w cell) "solid" color-bg)))))
 
 ; Shape 14
 (vector-set! shapes 14 (λ (cell [rot 0] [color "black"] [color-bg "white"])
-                         (overlay/align
-                          "left"
-                          "top"
-                          (rotate (* -1 90 rot)
+                         (rotate (* -1 90 rot)
+                                 (overlay/align
+                                  "left"
+                                  "top"
                                   (triangle/ass 90
                                                 (/ (dim-w cell) 2)
                                                 (/ (dim-h cell) 2)
                                                 "solid"
-                                                color))
-                          (square (dim-w cell) "solid" color-bg))))
+                                                color)
+                                  (square (dim-w cell) "solid" color-bg)))))
 
 ; Shape 15
 (vector-set! shapes 15 (λ (cell [rot 0] [color "black"] [color-bg "white"])
