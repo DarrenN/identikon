@@ -58,7 +58,6 @@
 ;
 (define (identikon width height username [rules "default"] [type #f])
   (let* ([processed-user (process-user username)]
-         [label (string-join (list "Identikon ::" username))]
          [rule-file (string-join (list rules "rkt") ".")])
 
     ; Load rules file if provided
