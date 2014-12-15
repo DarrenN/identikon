@@ -45,7 +45,7 @@
     [(string=? "png" type) (save-image rendered filename)]
     [else (error 'save-identicon "failed because could not not save file type of ~a" type)]))
 
-; Turn a SHA1 hash into a list of base 10 numbers
+; Turn a SHA1 hash into a list of 20 base 10 numbers
 (define (process-user user)
   (map (λ (x) (string->number x 16))
        (string-pairs (sha1 (open-input-bytes (string->bytes/utf-8 user))))))
