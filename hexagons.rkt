@@ -8,6 +8,13 @@
          sugar
          "utils.rkt")
 
+; Constants
+(define RHOMBUS-LENGTH 60)
+(define HEX-TOP 255)
+(define HEX-LEFT 80)
+(define HEX-RIGHT 155)
+(define ALPHA-MAX 50)
+
 ; Data structs
 (struct point (x y))
 (struct dim (w h))
@@ -37,20 +44,20 @@
     [(list? base-color) (color (first base-color)
                            (second base-color)
                            (third base-color)
-                           (max 50 alpha))]))
+                           (max ALPHA-MAX alpha))]))
 
 ; Create a hexagon from three rhombii
 (define (make-hex size base-color)
   (overlay/offset
-   (rotate 90 (rhombus size 60 "solid" (build-color base-color 255)))
+   (rotate 90 (rhombus size RHOMBUS-LENGTH "solid" (build-color base-color HEX-TOP)))
    0 (- size (/ size 4))
-   (beside (rotate 30 (rhombus size 60 "solid" (build-color base-color 80)))
-           (rotate -30 (rhombus size 60 "solid" (build-color base-color 155))))))
+   (beside (rotate 30 (rhombus size RHOMBUS-LENGTH "solid" (build-color base-color HEX-LEFT)))
+           (rotate -30 (rhombus size RHOMBUS-LENGTH "solid" (build-color base-color HEX-RIGHT))))))
 
-; Evens are white
+; Numbers divisible by 3 are white
 (define (filter-triplets triplets)
   (map (λ (t)
-         (if (even? (foldl + 0 t))
+         (if (zero? (modulo (foldl + 0 t) 3))
              "white"
              t)) triplets))
 
@@ -63,25 +70,26 @@
      (make-hex w (third colors))))
 
 ; Stack up the rows
-(define (make-rows triplets w n)
+(define (make-rows base triplets w n)
   (cond
-    [(zero? n) (make-row triplets w)]
+    [(zero? n) base]
     [else
      (local [(define hex-row (make-row triplets w))
              (define hex-w (image-width (make-hex w "white")))
-             (define row-h (image-height hex-row))]
+             (define row-h (image-height hex-row))
+             (define center-x (/ (image-width base) 2))]
        (define x-offset (if (even? n)
-                            0
-                            (->int (* hex-w .5))))
-       (overlay/offset
-        (make-rows (drop triplets 3) w (- n 1))
-        x-offset (->int (* n (- row-h (* w .5))))
-        (make-rows (reverse (drop triplets 3)) w (- n 1))))]))
+                            center-x
+                            (+ (->int (* hex-w .5)) center-x)))
+       (define scene (place-image
+                      hex-row
+                      x-offset (->int (* n (- row-h (* w .5))))
+                      base))
+     (make-rows scene (drop triplets 3) w (- n 1)))]))
 
+; Main draw function
 (define (draw-rules width height user)
   (let* ([canvas (make-canvas width height)]
          [border (canvas-border canvas)]
          [base (square width "solid" "white")])
-    (overlay 
-     (make-rows (make-triplets user) (->int (/ (- width border) 6.5)) 2)
-     base)))
+    (make-rows base (make-triplets user) (->int (/ (- width border) 6.5)) 4)))
