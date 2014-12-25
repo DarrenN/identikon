@@ -1,0 +1,137 @@
+#lang racket
+
+(provide draw-rules)
+
+(require lang/posn
+         openssl/sha1
+         2htdp/image
+         sugar
+         "utils.rkt")
+
+; Constants
+(define RHOMBUS-ANGLE 60)
+(define HEX-TOP 200)
+(define HEX-LEFT 80)
+(define HEX-RIGHT 155)
+(define ALPHA-MAX 50)
+(define DEFAULT-ALPHA 255)
+(define CANVAS-COLOR "white")
+(define BORDER-MAX 10)
+
+; Data structs
+(struct point (x y) #:transparent)
+(struct dim (w h) #:transparent)
+(struct canvas (outside inside border) #:transparent)
+(struct hex (offset row col point image) #:transparent)
+
+; Rhombus offset - the hexes are two sideways rhombii tall, so this
+; will calculate 1/4 of their height, used in stacking on y-axis
+(define (rhombus-offset height)
+  (- height (/ height 4)))
+
+; Build up a list of triplets '(1 2 3) to use as color information
+(define (make-triplets user)
+  (let* ([initial (take (slice-at user 3) 6)]
+         [firsts (slice-at (foldl (λ (x y) (cons (first x) y)) '() initial) 3)]
+         [seconds (slice-at (foldl (λ (x y) (cons (second x) y)) '() initial) 3)]
+         [thirds (slice-at (foldl (λ (x y) (cons (third x) y)) '() initial) 3)])
+    (append initial firsts seconds thirds)))
+
+; Take the dimensions and calculate a border 10% of dim and the internal draw space
+(define (make-canvas width height)
+  (let* ([border (min (* width .1) BORDER-MAX)]
+         [iw (->int (- width (* border 2)))]
+         [ih (->int (- height (* border 2)))]
+         [outside (dim width height)]
+         [inside (dim iw ih)])
+    (canvas outside inside border)))
+
+; Generate a color with alphas from r g b list
+(define (build-color base-color [alpha DEFAULT-ALPHA])
+  (cond
+    [(string? base-color) base-color]
+    [(list? base-color) (color (first base-color)
+                               (second base-color)
+                               (third base-color)
+                               (max ALPHA-MAX alpha))]))
+
+; Given a width, find the side length of a rhombus using rwidth by searching constraints
+(define (find-side width)
+  (let ([r (range (+ width 1))])
+    (define (loop n)
+      (cond
+        [(empty? n) 0]
+        [(>= (round (rwidth (first n))) width) (first n)]
+        [else (loop (rest n))]))
+    (loop r)))
+
+; Get width of rhombus from length of side
+(define (rwidth side)
+  (sqrt
+   (+ (* 2 (expt side 2))
+      (* (* 2 (expt side 2))
+         (cos (degrees->radians RHOMBUS-ANGLE))))))
+
+; hex (offset row col point image)
+(define (build-hexes points size hex-dim hex-offset canvas)
+  (for/list ([row points]
+             [row-pos (range (length points))]
+             [offset (map even? (range 0 (length points)))])
+    (for/list ([color row]
+               [col (range (length row))])
+      (let* ([w (dim-w hex-dim)]
+             [h (dim-h hex-dim)]
+             [dx (/ (- (/ (dim-w (canvas-inside canvas)) 2) (/ (* (dim-w hex-dim) (length row)) 2)) 2)]
+             [dy (- (dim-w (canvas-inside canvas)) (* (rhombus-offset h) 4))]
+             [off (if offset
+                      (+ (/ w 2) dx)
+                      dx)]
+             [x (+ (* w col) (/ w 2) off)]
+             [y (+ (* (rhombus-offset h) row-pos) (+ (/ h 2) (/ dy 4)))])
+        (hex offset row-pos col (point x y) (make-hex size color))))))
+
+; (build2 (make-canvas 200 200) (make-triplets (build-list 18 (λ (x) (random 255)))) 3)
+(define (build canvas triplets columns)
+  (let* ([points (slice-at (filter-triplets triplets) columns)]
+         [rows (length points)]
+         [canvas-w (dim-w (canvas-inside canvas))]
+         [canvas-h (dim-h (canvas-inside canvas))]
+         [point-h (/ canvas-h rows)]
+         [hex-size (find-side point-h)]
+         [hex (make-hex hex-size "white")]
+         [hex-dim (dim (image-width hex) (image-height hex))]
+         [hex-offset-x (* (dim-w hex-dim) .5)]
+         [hexes (flatten (build-hexes points hex-size hex-dim hex-offset canvas))]
+         [scene (square (dim-w (canvas-inside canvas)) "solid" CANVAS-COLOR)])
+    (define (loop image hexes)
+      (cond
+        [(empty? hexes) image]
+        [else (place-image
+               (hex-image (first hexes))
+               (point-x (hex-point (first hexes)))
+               (point-y (hex-point (first hexes)))
+               (loop scene (rest hexes)))]))
+    (overlay
+     (loop scene hexes)
+     (square (dim-w (canvas-outside canvas)) "solid" CANVAS-COLOR))))
+
+
+; Create a hexagon from three rhombii
+(define (make-hex size base-color)
+  (overlay/offset
+   (rotate 90 (rhombus size RHOMBUS-ANGLE "solid" (build-color base-color HEX-TOP)))
+   0 (rhombus-offset size)
+   (beside (rotate 30 (rhombus size RHOMBUS-ANGLE "solid" (build-color base-color HEX-LEFT)))
+           (rotate -30 (rhombus size RHOMBUS-ANGLE "solid" (build-color base-color HEX-RIGHT))))))
+
+; Numbers divisible by 3 are white
+(define (filter-triplets triplets)
+  (map (λ (t)
+         (if (zero? (modulo (foldl + 0 t) 3))
+             CANVAS-COLOR
+             t)) triplets))
+
+; Main draw function
+(define (draw-rules width height user)
+  (let* ([canvas (make-canvas width height)])
+    (build canvas (make-triplets user) 3)))
