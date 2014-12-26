@@ -29,12 +29,32 @@
 (define (rhombus-offset height)
   (- height (/ height 4)))
 
+; Pad a list with its last value to size
+(define (pad-list l size)
+  (cond
+    [(empty? l) (build-list size values)]
+    [(< (length l) size) (pad-list (append l (list (last l))) size)]
+    [else l]))
+
+; Fold over a list of lists and gather values from pos in each list into a new list
+(define (gather-values pos l)
+  (cond
+    [(empty? l) '()]
+    [else (foldl (λ (x y) (cons (if (empty? x)
+                                    '()
+                                    (pos x)) y)) '() l)]))
+
 ; Build up a list of triplets '(1 2 3) to use as color information
 (define (make-triplets user)
-  (let* ([initial (take (slice-at user 3) 6)]
-         [firsts (slice-at (foldl (λ (x y) (cons (first x) y)) '() initial) 3)]
-         [seconds (slice-at (foldl (λ (x y) (cons (second x) y)) '() initial) 3)]
-         [thirds (slice-at (foldl (λ (x y) (cons (third x) y)) '() initial) 3)])
+  (cond 
+    [(> (modulo (length user) 3) 0) (error "user must have multiples of three")])
+  (let* ([initial (filter (λ (x) (> (length x) 0)) (slice-at user 3))]
+         [triples (if (< (length initial) 3)
+                      (append initial (list (reverse (last initial))))
+                      initial)]
+         [firsts (slice-at (pad-list (gather-values first triples) 3) 3)]
+         [seconds (slice-at (pad-list (gather-values second triples) 3) 3)]
+         [thirds (slice-at (pad-list (gather-values third triples) 3) 3)])
     (append initial firsts seconds thirds)))
 
 ; Take the dimensions and calculate a border 10% of dim and the internal draw space
@@ -90,7 +110,7 @@
              [y (+ (* (rhombus-offset h) row-pos) (+ (/ h 2) (/ dy 4)))])
         (hex offset row-pos col (point x y) (make-hex size color))))))
 
-; (build2 (make-canvas 200 200) (make-triplets (build-list 18 (λ (x) (random 255)))) 3)
+; (build (make-canvas 200 200) (make-triplets (build-list 18 (λ (x) (random 255)))) 3)
 (define (build canvas triplets columns)
   (let* ([points (slice-at (filter-triplets triplets) columns)]
          [rows (length points)]
@@ -135,3 +155,34 @@
 (define (draw-rules width height user)
   (let* ([canvas (make-canvas width height)])
     (build canvas (make-triplets user) 3)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Tests
+
+(module+ test
+  (require quickcheck
+           sugar)
+  
+  ; rhombus-offset calculcation is correct
+  (define rhombus-offset-outputs-agree
+    (property ([num arbitrary-natural])
+              (let* ([onum (rhombus-offset num)]
+                     [diff (- num onum)])
+                (= num
+                   (* diff 4)))))
+  (quickcheck rhombus-offset-outputs-agree)  
+  
+  ; pad-list should increase the list to size
+  (define pad-list-lengths-agree
+    (property ([lst (arbitrary-list arbitrary-natural)]
+               [size arbitrary-natural])
+              (>= (length (pad-list lst size)) size)))
+  (quickcheck pad-list-lengths-agree)
+  
+  ; gather values will builds up lists made from pos values in lst
+  (define gather-values-lengths-agree
+    (property ([lst (arbitrary-list (arbitrary-list arbitrary-natural))])
+              (let ([len (length lst)])
+                (= (length (gather-values first lst)) len))))
+  (quickcheck gather-values-lengths-agree))
+
