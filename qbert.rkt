@@ -17,6 +17,7 @@
 (define DEFAULT-ALPHA 255)
 (define CANVAS-COLOR "white")
 (define BORDER-MAX 10)
+(define MAX-USER-LENGTH 18)
 
 ; Data structs
 (struct point (x y) #:transparent)
@@ -44,18 +45,17 @@
                                     '()
                                     (pos x)) y)) '() l)]))
 
-; Build up a list of triplets '(1 2 3) to use as color information
+; Build up a list of 12 triplets '(1 2 3) to use as color information
 (define (make-triplets user)
-  (cond 
-    [(> (modulo (length user) 3) 0) (error "user must have multiples of three")])
-  (let* ([initial (filter (λ (x) (> (length x) 0)) (slice-at user 3))]
-         [triples (if (< (length initial) 3)
-                      (append initial (list (reverse (last initial))))
-                      initial)]
+  (let* ([initial (cond
+                    [(empty? user) (range 18)] ; fail safe for empty list
+                    [(> (modulo (length user) MAX-USER-LENGTH) 0) (pad-list user MAX-USER-LENGTH)]
+                    [else user])]
+         [triples (filter (λ (x) (> (length x) 0)) (slice-at (take initial MAX-USER-LENGTH) 3))]
          [firsts (slice-at (pad-list (gather-values first triples) 3) 3)]
          [seconds (slice-at (pad-list (gather-values second triples) 3) 3)]
          [thirds (slice-at (pad-list (gather-values third triples) 3) 3)])
-    (append initial firsts seconds thirds)))
+    (append triples firsts seconds thirds)))
 
 ; Take the dimensions and calculate a border 10% of dim and the internal draw space
 (define (make-canvas width height)
@@ -184,5 +184,19 @@
     (property ([lst (arbitrary-list (arbitrary-list arbitrary-natural))])
               (let ([len (length lst)])
                 (= (length (gather-values first lst)) len))))
-  (quickcheck gather-values-lengths-agree))
+  (quickcheck gather-values-lengths-agree)
+  
+  ; make-triplets should always return a list of 12 items
+  (define make-triplets-lengths-agree
+    (property ([lst (arbitrary-list arbitrary-natural)])
+                (= (length (make-triplets lst)) 12)))
+  (quickcheck make-triplets-lengths-agree)
+  
+  ; make-triplets should always return a list of 12 lists of 3 items
+  (define make-triplets-items-agree
+    (property ([lst (arbitrary-list arbitrary-natural)])
+              (let ([t (make-triplets lst)])
+                (empty? (filter false? (map (λ (x) (and (list? x)
+                                                        (= (length x) 3))) t))))))
+  (quickcheck make-triplets-items-agree))
 
