@@ -99,6 +99,26 @@
          [inside (dim iw ih)])
     (canvas outside inside border)))
 
+; TEST: Make canvas should calculate a border and internal area and create data structures
+(module+ test
+  (define make-canvas-structs-agree
+    (property ([w arbitrary-natural]
+               [h arbitrary-natural])
+              (let* ([c (make-canvas w h)]
+                     [outside (canvas-outside c)]
+                     [inside (canvas-inside c)]
+                     [border (min (* w .1) DEFAULT-BORDER-MAX)])
+                (and (canvas? c)
+                     (dim? outside)
+                     (dim? inside)
+                     (= (dim-w outside) w)
+                     (= (dim-h outside) h)
+                     (= (canvas-border c) border)
+                     (= (->int (- (dim-w outside) (* border 2))) (dim-w inside))
+                     (= (->int (- (dim-h outside) (* border 2))) (dim-h inside))))))
+  
+  (quickcheck make-canvas-structs-agree))
+
 ; Pad a list with its last value to size
 (define (pad-list l size)
   (cond
