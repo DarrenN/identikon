@@ -20,51 +20,12 @@
 (define MAX-USER-LENGTH 18)
 
 ; Data structs
-(struct point (x y) #:transparent)
-(struct dim (w h) #:transparent)
-(struct canvas (outside inside border) #:transparent)
 (struct hex (offset row col point image) #:transparent)
 
 ; Rhombus offset - the hexes are two sideways rhombii tall, so this
 ; will calculate 1/4 of their height, used in stacking on y-axis
 (define (rhombus-offset height)
   (- height (/ height 4)))
-
-; Pad a list with its last value to size
-(define (pad-list l size)
-  (cond
-    [(empty? l) (build-list size values)]
-    [(< (length l) size) (pad-list (append l (list (last l))) size)]
-    [else l]))
-
-; Fold over a list of lists and gather values from pos in each list into a new list
-(define (gather-values pos l)
-  (cond
-    [(empty? l) '()]
-    [else (foldl (λ (x y) (cons (if (empty? x)
-                                    '()
-                                    (pos x)) y)) '() l)]))
-
-; Build up a list of 12 triplets '(1 2 3) to use as color information
-(define (make-triplets user)
-  (let* ([initial (cond
-                    [(empty? user) (range 18)] ; fail safe for empty list
-                    [(> (modulo (length user) MAX-USER-LENGTH) 0) (pad-list user MAX-USER-LENGTH)]
-                    [else user])]
-         [triples (filter (λ (x) (> (length x) 0)) (slice-at (take initial MAX-USER-LENGTH) 3))]
-         [firsts (slice-at (pad-list (gather-values first triples) 3) 3)]
-         [seconds (slice-at (pad-list (gather-values second triples) 3) 3)]
-         [thirds (slice-at (pad-list (gather-values third triples) 3) 3)])
-    (append triples firsts seconds thirds)))
-
-; Take the dimensions and calculate a border 10% of dim and the internal draw space
-(define (make-canvas width height)
-  (let* ([border (min (* width .1) BORDER-MAX)]
-         [iw (->int (- width (* border 2)))]
-         [ih (->int (- height (* border 2)))]
-         [outside (dim width height)]
-         [inside (dim iw ih)])
-    (canvas outside inside border)))
 
 ; Generate a color with alphas from r g b list
 (define (build-color base-color [alpha DEFAULT-ALPHA])
@@ -135,7 +96,6 @@
      (loop scene hexes)
      (square (dim-w (canvas-outside canvas)) "solid" CANVAS-COLOR))))
 
-
 ; Create a hexagon from three rhombii
 (define (make-hex size base-color)
   (overlay/offset
@@ -153,8 +113,8 @@
 
 ; Main draw function
 (define (draw-rules width height user)
-  (let* ([canvas (make-canvas width height)])
-    (build canvas (make-triplets user) 3)))
+  (let* ([canvas (make-canvas width height BORDER-MAX)])
+    (build canvas (make-triplets user MAX-USER-LENGTH) 3)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Tests
@@ -170,33 +130,4 @@
                      [diff (- num onum)])
                 (= num
                    (* diff 4)))))
-  (quickcheck rhombus-offset-outputs-agree)  
-  
-  ; pad-list should increase the list to size
-  (define pad-list-lengths-agree
-    (property ([lst (arbitrary-list arbitrary-natural)]
-               [size arbitrary-natural])
-              (>= (length (pad-list lst size)) size)))
-  (quickcheck pad-list-lengths-agree)
-  
-  ; gather values will builds up lists made from pos values in lst
-  (define gather-values-lengths-agree
-    (property ([lst (arbitrary-list (arbitrary-list arbitrary-natural))])
-              (let ([len (length lst)])
-                (= (length (gather-values first lst)) len))))
-  (quickcheck gather-values-lengths-agree)
-  
-  ; make-triplets should always return a list of 12 items
-  (define make-triplets-lengths-agree
-    (property ([lst (arbitrary-list arbitrary-natural)])
-                (= (length (make-triplets lst)) 12)))
-  (quickcheck make-triplets-lengths-agree)
-  
-  ; make-triplets should always return a list of 12 lists of 3 items
-  (define make-triplets-items-agree
-    (property ([lst (arbitrary-list arbitrary-natural)])
-              (let ([t (make-triplets lst)])
-                (empty? (filter false? (map (λ (x) (and (list? x)
-                                                        (= (length x) 3))) t))))))
-  (quickcheck make-triplets-items-agree))
-
+  (quickcheck rhombus-offset-outputs-agree))
