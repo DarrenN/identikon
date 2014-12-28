@@ -11,11 +11,6 @@
          sugar
          "utils.rkt")
 
-; Data structs
-(struct point (x y))
-(struct dim (w h))
-(struct canvas (outside inside border))
-
 ; Define shapes
 (define shapes (make-vector 16))
 (define centers (vector 0 4 8 15))
@@ -164,15 +159,6 @@
 ; Shape 15
 (vector-set! shapes 15 (λ (cell [rot 0] [color "black"] [color-bg "white"])
                          (rotate (* -1 90 rot) (square (dim-w cell) "solid" color-bg))))
-
-; Take the dimensions and calculate a border 10% of dim and the internal draw space
-(define (make-canvas width height)
-  (let* ([border (* width .05)]
-         [iw (->int (- width (* border 2)))]
-         [ih (->int (- height (* border 2)))]
-         [outside (dim width height)]
-         [inside (dim iw ih)])
-    (canvas outside inside border)))
 
 ; Create cell dimensions from inside canvas dim / divisor
 (define (make-cell c divisor)

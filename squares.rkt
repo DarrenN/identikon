@@ -22,20 +22,6 @@
 (define MIN-LIGHTNESS 50)
 (define MAX-LIGHTNESS 80)
 
-; Data structs
-(struct point (x y))
-(struct dim (w h))
-(struct canvas (outside inside border))
-
-; Take the dimensions and calculate a border 10% of dim and the internal draw space
-(define (make-canvas width height)
-  (let* ([border (* width .1)]
-         [iw (->int (- width (* border 2)))]
-         [ih (->int (- height (* border 2)))]
-         [outside (dim width height)]
-         [inside (dim iw ih)])
-    (canvas outside inside border)))
-
 ; Create cell dimensions from inside canvas dim / divisor
 (define (make-cell c divisor)
   (let* ([inside (canvas-inside c)]

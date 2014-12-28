@@ -14,22 +14,6 @@
          2htdp/image
          "utils.rkt")
 
-; Data structs
-(struct point (x y))
-(struct dim (w h))
-(struct canvas (outside inside border))
-
-(define (foo x) x)
-
-; Take the dimensions and calculate a border 10% of dim and the internal draw space
-(define (make-canvas width height)
-  (let* ([border (* width .04)]
-         [iw (- width (* border 2))]
-         [ih (- height (* border 2))]
-         [outside (dim width height)]
-         [inside (dim iw ih)])
-    (canvas outside inside border)))
-
 ; Return a list of sizes in radius for use in circles
 (define (make-sizes canvas user)
   (let* ([size (dim-w (canvas-inside canvas))]
