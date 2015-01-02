@@ -24,7 +24,7 @@
   (let ([ns (make-base-empty-namespace)])
     (namespace-attach-module (namespace-anchor->empty-namespace a)
                              '2htdp/image
-                              ns)
+                             ns)
     (parameterize ([current-namespace ns])
       (dynamic-require file 'draw-rules))))
 
@@ -59,14 +59,55 @@
 (define (identikon width height username [rules "default"] [type #f])
   (let* ([processed-user (process-user username)]
          [rule-file (string-join (list rules "rkt") ".")])
-
+    
     ; Load rules file if provided
     (set! draw-rules (load-plug-in rule-file))
-
+    
     ; Create identicon
     (define rendered (draw-rules width height processed-user))
-
+    
     ; Either save the identicon or output to REPL
     (if type
         (save-identicon (make-filename username width type) type rendered)
         rendered)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Command line handling for Identikon
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(module+ main
+  (require racket/cmdline
+           racket/list)
+  
+  (define size-flags (make-parameter null))
+  (define rules-set (make-parameter '("default")))
+  (define name (make-parameter null))
+  (define ext (make-parameter "png"))
+  
+  (define make-identikon
+    (command-line
+     #:program "identikon"
+     #:once-each
+     [("-n" "--name") nm
+                      "Username to convert to identikon"
+                      (name nm)]
+     
+     [("-t" "--type") ty
+                      "File type: png or svg"
+                      (ext ty)]
+     
+     [("-r" "--rules") rs
+                       "Use specific rules"
+                       (rules-set (cons rs (rules-set)))]
+     
+     #:multi
+     [("-s" "--size") sz
+                      "Add a square size to generate"
+                      (size-flags (cons sz (size-flags)))]))
+  
+  (cond
+    [(empty? (size-flags)) (printf "No sizes were provided, -s ~n")]
+    [(empty? (name)) (printf "No name provided to process, -n ~n")])
+  
+  (for ([s (size-flags)])
+    (identikon (string->number s) (string->number s) (name) (first (rules-set)) (ext))))
