@@ -21,6 +21,7 @@
 (define MAX-SATURATION 80)
 (define MIN-LIGHTNESS 50)
 (define MAX-LIGHTNESS 80)
+(define BORDER-MAX 30)
 
 ; Create cell dimensions from inside canvas dim / divisor
 (define (make-cell c divisor)
@@ -80,7 +81,7 @@
 
 ; The main entry point for creating an identikon
 (define (draw-rules width height user)
-  (let* ([canvas (make-canvas width height)]
+  (let* ([canvas (make-canvas width height BORDER-MAX)]
          [color (build-color user)]
          [points (chunk-mirror2 (take user 15) 3)]
          [cell (make-cell canvas 5)]
