@@ -106,8 +106,11 @@
                       (size-flags (cons sz (size-flags)))]))
   
   (cond
+    [(and (empty? (size-flags)) (empty? (name))) (printf "No information provided ~n")]
     [(empty? (size-flags)) (printf "No sizes were provided, -s ~n")]
-    [(empty? (name)) (printf "No name provided to process, -n ~n")])
-  
-  (for ([s (size-flags)])
-    (identikon (string->number s) (string->number s) (name) (first (rules-set)) (ext))))
+    [(empty? (name)) (printf "No name provided to process, -n ~n")]
+    [else (for ([s (size-flags)])
+            (identikon (string->number s)
+                       (string->number s)
+                       (name)
+                       (first (rules-set)) (ext)))]))
