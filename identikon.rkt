@@ -15,18 +15,22 @@
 ; ———————————
 ; implementation
 
+; Identifier we overwrite dynamically with module functions
 (define draw-rules null)
 
 (define-namespace-anchor a)
 
+(define RULES-DIR "rules")
+
 ; Dynamically load in a rules file
 (define (load-plug-in file)
-  (let ([ns (make-base-empty-namespace)])
+  (let ([ns (make-base-empty-namespace)]
+        [filename (build-path (current-directory) RULES-DIR file)])
     (namespace-attach-module (namespace-anchor->empty-namespace a)
                              '2htdp/image
                              ns)
     (parameterize ([current-namespace ns])
-      (dynamic-require file 'draw-rules))))
+      (dynamic-require filename 'draw-rules))))
 
 ; Create a filename and check if the file already exists, if so
 ; append a timestamp

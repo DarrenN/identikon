@@ -13,7 +13,7 @@
 (require racket/list
          2htdp/image
          sugar
-         "utils.rkt")
+         "../utils.rkt")
 
 ; Constants
 (define BORDER-MAX 20)

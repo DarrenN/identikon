@@ -12,7 +12,7 @@
 
 (require racket/list
          2htdp/image
-         "utils.rkt")
+         "../utils.rkt")
 
 ; Return a list of sizes in radius for use in circles
 (define (make-sizes canvas user)

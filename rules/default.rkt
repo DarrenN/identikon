@@ -12,7 +12,7 @@
 
 (require racket/list
          2htdp/image
-         "utils.rkt")
+         "../utils.rkt")
 
 ; Constants
 (define BORDER-MAX 20)
