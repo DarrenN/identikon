@@ -14,7 +14,7 @@
          racket/string
          2htdp/image
          sugar
-         "utils.rkt")
+         "../utils.rkt")
 
 ; Return a list of sizes in radius for use in circles
 (define (make-sizes canvas user)

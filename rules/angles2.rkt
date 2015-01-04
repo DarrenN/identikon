@@ -12,60 +12,45 @@
 
 (require racket/list
          2htdp/image
-         "utils.rkt")
+         sugar
+         "../utils.rkt")
 
 ; Create cell dimensions from inside canvas dim / divisor
 (define (make-cell c divisor)
   (let* ([inside (canvas-inside c)]
          [cw (dim-w inside)]
          [ch (dim-h inside)])
-    (dim (/ cw divisor) (/ ch divisor))))
+    (dim (->int (/ cw divisor)) (->int (/ ch divisor)))))
 
 ;;;;;;;;;;;;;;;;;;;
 ; Shapes
 ;;;;;;;;;;;;;;;;;;;
 
-; Solid circle
-(define (even hue border cell i c)
-  (let* ([pos (point (+ border (* (dim-w cell) i)) (+ border (* (dim-h cell) c)))]
-         [offset (/ border 2)]
-         [color (make-rgb hue)])
-    (overlay (circle (/ (dim-w cell) 2.5) "solid" color)
-             (square (dim-w cell) "solid" "white"))))
+; Even
+(define (even hue cell [bg-light "60%"])
+  (let* ([color (make-rgb hue)])
+    (overlay
+     (right-triangle (dim-w cell) (dim-w cell) "solid" (make-rgb hue))
+     (square (dim-w cell) "solid" (make-rgb hue "80%" bg-light)))))
 
-; Empty circle
-(define (double hue border cell i c)
-  (let* ([pos (point (+ border (* (dim-w cell) i)) (+ border (* (dim-h cell) c)))]
-         [offset (/ border 2)]
-         [color (make-rgb hue)])
-    (overlay (circle (/ (dim-w cell) 4) "solid" "white")
-             (circle (/ (dim-w cell) 2.5) "solid" color)
-             (square (dim-w cell) "solid" "white"))))
-
-; Dot
-(define (odd hue border cell i c)
-  (let* ([pos (point (+ border (* (dim-w cell) i)) (+ border (* (dim-h cell) c)))]
-         [offset (/ border 2)]
-         [color (make-rgb hue)])
-    (overlay (circle (/ (dim-w cell) 3.75) "solid" color)
-             (square (dim-w cell) "solid" "white"))))
 
 ; Drawing a row of shapes
 (define (draw-rule points hues c border cell)
   (let ([count (range 0 (length points))])
-    (for/list ([p points]
+    (for/list ([p (map (λ (x) (modulo x 4)) points)]
                [hue hues]
                [i count])
-      (cond [(double? p) (double hue border cell i c)]
-            [(even? p) (even hue border cell i c)]
-            [(odd? p) (odd hue border cell i c)]))))
+      (cond [(zero? p) (even hue cell "70%")]
+            [(eq? p 1) (even hue cell "50%")]
+            [(eq? p 2) (even hue cell "40%")]
+            [(eq? p 3) (even hue cell "30%")]))))
 
 ; The main entry point for creating an identikon
 (define (draw-rules width height user)
   (let* ([canvas (make-canvas width height)]
          [color-range (build-color-range user)]
-         [points (chunk-mirror (drop user 2) 3)]
-         [cell (make-cell canvas 6)]
+         [points (slice-at (drop user 4) 4)]
+         [cell (make-cell canvas 4)]
          [border (canvas-border canvas)]
          [count (range 0 (length points))]
          [base (square width "solid" "white")])
@@ -74,4 +59,4 @@
                               [i count])
                      (row->image (draw-rule row color-row i border cell)))])
       (overlay (rotate 180 (foldr (λ (r g) (above r g)) (first circles) (reverse (rest circles))))
-                     base))))
+               base))))

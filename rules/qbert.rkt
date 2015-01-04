@@ -6,7 +6,7 @@
          openssl/sha1
          2htdp/image
          sugar
-         "utils.rkt")
+         "../utils.rkt")
 
 ; Constants
 (define RHOMBUS-ANGLE 60)

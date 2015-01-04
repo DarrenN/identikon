@@ -9,7 +9,7 @@
          2htdp/image
          lang/posn
          sugar
-         "utils.rkt")
+         "../utils.rkt")
 
 ; Define shapes
 (define shapes (make-vector 16))

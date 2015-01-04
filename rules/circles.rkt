@@ -13,7 +13,10 @@
 (require racket/list
          2htdp/image
          sugar
-         "utils.rkt")
+         "../utils.rkt")
+
+; Constants
+(define BORDER-MAX 20)
 
 ; Create cell dimensions from inside canvas dim / divisor
 (define (make-cell c divisor)
@@ -71,7 +74,7 @@
 
 ; The main entry point for creating an identikon
 (define (draw-rules width height user)
-  (let* ([canvas (make-canvas width height)]
+  (let* ([canvas (make-canvas width height BORDER-MAX)]
          [color-range (build-color-range user)]
          [points (chunk-mirror2 (drop user 5) 3)]
          [cell (make-cell canvas 5)]
