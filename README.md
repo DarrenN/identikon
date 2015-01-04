@@ -7,7 +7,7 @@ A small collection of Racket scripts for generating identicons. This is very muc
 
 ## Usage
 
-Opening the `identikon.rkt` module in [Dr. Racket]() or [Emacs/Geiser]() will give you access to the `identikon` function in the REPL:
+Opening the `identikon.rkt` module in [Dr. Racket](http://docs.racket-lang.org/drracket/) or [Emacs/Geiser](http://docs.racket-lang.org/guide/Emacs.html) will give you access to the `identikon` function in the REPL:
 
 ```racket
 ; Generate a default 300px identicon for "racket"
@@ -54,13 +54,17 @@ Each identicon has a rules file (ex: `default.rkt`) which is responsible for tak
 
 ![d](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_default.png)
 
-#### circles.rkt
+#### qbert.rkt
 
-![c](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_circles.png)
+![s](https://dl.dropboxusercontent.com/u/4221594/github/racket_300_qbert.png)
 
 #### squares.rkt
 
 ![s](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_squares.png)
+
+#### circles.rkt
+
+![c](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_circles.png)
 
 #### angles.rkt
 
