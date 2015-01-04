@@ -3,7 +3,11 @@
 identikon
 =========
 
-A small collection of Racket scripts for generating identicons. This is very much alpha and will be changing a lot as I learn more about Racket. Identicons can be saved as PNG or SVG.
+A small collection of Racket scripts for generating identicons. This is very much alpha and will be changing a lot as I learn more about Racket. Identicons can be saved as PNG or SVG. [Obligatory blog post](http://darrennewton.com/2015/01/04/deterministic-pixels/).
+
+## Dependencies
+
+You will need to install [sugar](http://pkg-build.racket-lang.org/doc/sugar/index.html) and [css-tools](https://github.com/mbutterick/css-tools).
 
 ## Usage
 
