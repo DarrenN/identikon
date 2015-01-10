@@ -7,7 +7,7 @@
 ; ———————————
 ; implementation
 
-(require 2htdp/image 
+(require 2htdp/image
          css-tools/colors
          sugar)
 
@@ -22,7 +22,7 @@
 (struct dim (w h) #:transparent)
 (struct canvas (outside inside border) #:transparent)
 
-; Grab the first 4 numbers from the user list and use them to generate a list of 
+; Grab the first 4 numbers from the user list and use them to generate a list of
 ; color values for points in the indentikon
 (define (build-color-range user)
   (define color-a (first (take user 2)))
@@ -30,16 +30,16 @@
                       (/ (second (take user 2)) 2)
                       (second (take user 2))))
   (slice-at (if (> color-a color-b)
-                (range color-b 
-                       color-a 
+                (range color-b
+                       color-a
                        (/ (- color-a color-b) (* (length (drop user 2)) 2)))
-                (range color-a 
-                       color-b 
+                (range color-a
+                       color-b
                        (/ (- color-b color-a) (* (length (drop user 2)) 2)))) 6))
 
 ; Turn a hue into an RGB color object
 (define (make-rgb hue [sat DEFAULT-SATURATION] [lig DEFAULT-LIGHTNESS])
-  (define rgb (map (λ (x) (->int (* 255 x))) 
+  (define rgb (map (λ (x) (->int (* 255 x)))
                    (hsl->rgb (list (number->string (* 1.411 hue)) sat lig))))
   (make-color (first rgb) (second rgb) (third rgb)))
 
@@ -52,11 +52,11 @@
       [else (let-values ([(front back) (split-at nums (quotient (length nums) 2))])
               (string=? (list->string front) (list->string back)))])))
 
-; Drop images in a list next to one another 
+; Drop images in a list next to one another
 (define (row->image row)
   (cond
     [(empty? row) empty-image]
-    [else         (beside (first row) 
+    [else         (beside (first row)
                           (row->image (rest row)))]))
 
 ; Convert a string into a list of string pairs
@@ -116,7 +116,7 @@
                      (= (canvas-border c) border)
                      (= (->int (- (dim-w outside) (* border 2))) (dim-w inside))
                      (= (->int (- (dim-h outside) (* border 2))) (dim-h inside))))))
-  
+
   (quickcheck make-canvas-structs-agree))
 
 ; Pad a list with its last value to size
@@ -152,30 +152,30 @@
 (module+ test
   (require quickcheck
            sugar)
-  
+
   ; string-pairs length is equal to original string without spaces
   (define string-pairs-length-agree
     (property ([str arbitrary-printable-ascii-string])
               (= (string-length (string-trim (string-replace str " " "")))
                  (string-length (string-join (string-pairs str) "")))))
-  
+
   (quickcheck string-pairs-length-agree)
-  
+
   ; string-pairs list contains items of length 2 or less
   (define string-pairs-lengths-are-two
     (property ([str arbitrary-printable-ascii-string])
               (not (false? (foldl (λ (x y) (<= (string-length x) 2)) #t (string-pairs str))))))
-  
+
   (quickcheck string-pairs-lengths-are-two)
-  
+
   ; chunk mirror returns lists with twice the length of the original
   (define chunk-mirrors-length-doubled
     (property ([lst (arbitrary-list arbitrary-natural)]
                [num arbitrary-natural])
               (= (* 2 (length lst)) (length (flatten (chunk-mirror lst (+ 1 num)))))))
-  
+
   (quickcheck chunk-mirrors-length-doubled)
-  
+
   ; chunk mirror returns list items that are mirrors, so if we split the item list
   ; in half both pieces should be equal when the 2nd half is reversed
   (define chunk-mirrors-items-mirrored
@@ -184,21 +184,21 @@
               (let* ([cm (chunk-mirror lst (+ 1 num))]
                      [results (map (λ (x)
                                      (let-values ([(f b) (split-at x (quotient (length x) 2))])
-                                       (equal? f (reverse b)))) 
+                                       (equal? f (reverse b))))
                                    cm)])
                 (empty? (filter false? results)))))
-  
+
   (quickcheck chunk-mirrors-items-mirrored)
-  
+
   ; chunk mirror returns lists with lengths equal slice-at lst num + 1
   (define chunk-mirrors-length-is-round
     (property ([lst (arbitrary-list arbitrary-natural)]
                [num arbitrary-natural])
               (let ([cm (chunk-mirror lst (+ 1 num))])
                 (= (length cm) (length (slice-at lst (+ 1 num)))))))
-  
+
   (quickcheck chunk-mirrors-length-is-round)
-  
+
   ; chunk dupe returns list items that dupes, so if we split the item list
   ; in half both pieces should be equal
   (define chunk-dupe-items-mirrored
@@ -207,12 +207,12 @@
               (let* ([cm (chunk-dupe lst (+ 1 num))]
                      [results (map (λ (x)
                                      (let-values ([(f b) (split-at x (quotient (length x) 2))])
-                                       (equal? f b))) 
+                                       (equal? f b)))
                                    cm)])
                 (empty? (filter false? results)))))
-  
+
   (quickcheck chunk-dupe-items-mirrored)
-  
+
   ; Relative position should be reversible to original position
   (define relative-position-values-agree
     (property ([pos (choose-integer 0 200)]
@@ -221,29 +221,29 @@
               (let* ([new (relative-position pos current target)])
                 (= (* (/ new target) current)
                    pos))))
-  
+
   (quickcheck relative-position-values-agree)
-  
+
     ; pad-list should increase the list to size
   (define pad-list-lengths-agree
     (property ([lst (arbitrary-list arbitrary-natural)]
                [size arbitrary-natural])
               (>= (length (pad-list lst size)) size)))
   (quickcheck pad-list-lengths-agree)
-  
+
   ; gather values will builds up lists made from pos values in lst
   (define gather-values-lengths-agree
     (property ([lst (arbitrary-list (arbitrary-list arbitrary-natural))])
               (let ([len (length lst)])
                 (= (length (gather-values first lst)) len))))
   (quickcheck gather-values-lengths-agree)
-  
+
   ; make-triplets should always return a list of 12 items
   (define make-triplets-lengths-agree
     (property ([lst (arbitrary-list arbitrary-natural)])
                 (= (length (make-triplets lst)) 12)))
   (quickcheck make-triplets-lengths-agree)
-  
+
   ; make-triplets should always return a list of 12 lists of 3 items
   (define make-triplets-items-agree
     (property ([lst (arbitrary-list arbitrary-natural)])

@@ -64,13 +64,13 @@
 (define (identikon width height username [rules "default"] [type #f])
   (let* ([processed-user (process-user username)]
          [rule-file (string-join (list rules "rkt") ".")])
-    
+
     ; Load rules file if provided
     (set! draw-rules (load-plug-in rule-file))
-    
+
     ; Create identicon
     (define rendered (draw-rules width height processed-user))
-    
+
     ; Either save the identicon or output to REPL
     (if type
         (save-identicon (make-filename username width type) type rendered)
@@ -83,12 +83,12 @@
 (module+ main
   (require racket/cmdline
            racket/list)
-  
+
   (define size-flags (make-parameter null))
   (define rules-set (make-parameter '("default")))
   (define name (make-parameter null))
   (define ext (make-parameter "png"))
-  
+
   (define make-identikon
     (command-line
      #:program "identikon"
@@ -96,20 +96,20 @@
      [("-n" "--name") nm
                       "Username to convert to identikon"
                       (name nm)]
-     
+
      [("-t" "--type") ty
                       "File type: png or svg"
                       (ext ty)]
-     
+
      [("-r" "--rules") rs
                        "Use specific rules"
                        (rules-set (cons rs (rules-set)))]
-     
+
      #:multi
      [("-s" "--size") sz
                       "Add a square size to generate"
                       (size-flags (cons sz (size-flags)))]))
-  
+
   (cond
     [(and (empty? (size-flags)) (empty? (name))) (printf "No information provided ~n")]
     [(empty? (size-flags)) (printf "No sizes were provided, -s ~n")]
