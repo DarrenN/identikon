@@ -7,6 +7,7 @@
 
 (require racket/date
          racket/list
+         racket/runtime-path
          racket/string
          openssl/sha1
          2htdp/image
@@ -20,12 +21,12 @@
 
 (define-namespace-anchor a)
 
-(define RULES-DIR "rules")
+(define-runtime-path RULES-DIR "rules")
 
 ; Dynamically load in a rules file
 (define (load-plug-in file)
   (let ([ns (make-base-empty-namespace)]
-        [filename (build-path (current-directory) RULES-DIR file)])
+        [filename (build-path RULES-DIR file)])
     (namespace-attach-module (namespace-anchor->empty-namespace a)
                              '2htdp/image
                              ns)
