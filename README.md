@@ -11,7 +11,7 @@ You will need to install [sugar](http://pkg-build.racket-lang.org/doc/sugar/inde
 
 ## Usage
 
-Opening the `identikon.rkt` module in [Dr. Racket](http://docs.racket-lang.org/drracket/) or [Emacs](http://docs.racket-lang.org/guide/Emacs.html) with [racket-mode](https://github.com/greghendershott/racket-mode) will give you access to the `identikon` function in the REPL:
+Opening the `identikon.rkt` module in [Dr. Racket](http://docs.racket-lang.org/drracket/) or [Emacs](http://docs.racket-lang.org/guide/Emacs.html) with [racket-mode](https://github.com/greghendershott/racket-mode) or [Geiser](http://www.nongnu.org/geiser/) will give you access to the `identikon` function in the REPL:
 
 ```racket
 ; Generate a default 300px identicon for "racket"
@@ -31,9 +31,9 @@ Additionally you can require identikon into your own program as a module:
 (define foo (identikon 300 300 "racket"))
 ```
 
-**Note:** Trying to use identikon in a standard CLI racket REPL will just return an `(object:image% ...)` instead of rendering the image. You could save an image to the filesystem this way: `(identikon 300 300 "racket" "default" "svg")`. If you're accessing the CLI REPL via [racket-mode](https://github.com/greghendershott/racket-mode) in Emacs then the images will render just fine like so:
+**Note:** Trying to use identikon in a standard CLI racket REPL will just return an `(object:image% ...)` instead of rendering the image. You could save an image to the filesystem this way: `(identikon 300 300 "racket" "default" "svg")`. If you're accessing the CLI REPL via either [racket-mode](https://github.com/greghendershott/racket-mode) or [Geiser](http://www.nongnu.org/geiser/) in Emacs then the images will render just fine like so:
 
-![racket-mode](https://dl.dropbox.com/s/sb0f5av6fzvtcqv/Screenshot%202014-11-28%2018.14.30.png?dl=0)
+![geiser](https://dl.dropbox.com/s/sb0f5av6fzvtcqv/Screenshot%202014-11-28%2018.14.30.png?dl=0)
 
 ## CLI interface
 
