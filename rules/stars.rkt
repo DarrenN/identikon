@@ -14,7 +14,7 @@
          racket/string
          2htdp/image
          sugar
-         "../utils.rkt")
+         identikon/utils)
 
 ; Return a list of sizes in radius for use in circles
 (define (make-sizes canvas user)
@@ -29,11 +29,11 @@
                       (/ (last user) 2)
                       (last user)))
   (if (> color-a color-b)
-      (range color-b 
-             color-a 
+      (range color-b
+             color-a
              (/ (- color-a color-b) (* (length (drop user 2)) 2)))
-      (range color-a 
-             color-b 
+      (range color-a
+             color-b
              (/ (- color-b color-a) (* (length (drop user 2)) 2)))))
 
 ;;;;;;;;;;;;;;;;;;;
@@ -48,15 +48,15 @@
                    sides)])
     (if (even? d)
         ;(radial-star sides (->int (/ radius 1.25)) radius "solid" "white")
-        (radial-star side 
-                     (->int (/ radius 1.25)) 
-                     radius 
-                     "solid" 
+        (radial-star side
+                     (->int (/ radius 1.25))
+                     radius
+                     "solid"
                      (make-rgb color "50%" (string-join (list (number->string (- 100 d)) "%") "")))
-        (radial-star side 
-                     (->int (/ radius 1.25)) 
-                     radius 
-                     "solid" 
+        (radial-star side
+                     (->int (/ radius 1.25))
+                     radius
+                     "solid"
                      (make-rgb color "60%" (string-join (list (number->string (- 60 d)) "%") ""))))))
 
 ; The main entry point for creating an identikon

@@ -13,7 +13,7 @@
 (require racket/list
          2htdp/image
          sugar
-         "../utils.rkt")
+         identikon/utils)
 
 ; Constants
 (define PERCENT-DIVISOR 2.55)
