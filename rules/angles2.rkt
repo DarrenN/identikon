@@ -13,7 +13,7 @@
 (require racket/list
          2htdp/image
          sugar
-         "../utils.rkt")
+         identikon/utils)
 
 ; Create cell dimensions from inside canvas dim / divisor
 (define (make-cell c divisor)

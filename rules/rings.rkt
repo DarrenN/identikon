@@ -12,7 +12,7 @@
 
 (require racket/list
          2htdp/image
-         "../utils.rkt")
+         identikon/utils)
 
 ; Return a list of sizes in radius for use in circles
 (define (make-sizes canvas user)
@@ -30,7 +30,7 @@
     [(double? digit) (circle radius "solid" "white")]
     [(even? digit) (circle radius "solid" (make-rgb digit))]
     [(odd? digit) (circle radius "solid" (make-rgb digit "60%" "90%"))]))
-      
+
 ; The main entry point for creating an identikon
 ; take 20 digits of user and create a new list of hues based on them
 ; create a list of 20 sizes (inner size / 20)

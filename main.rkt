@@ -11,7 +11,7 @@
          racket/string
          openssl/sha1
          2htdp/image
-         "utils.rkt")
+         identikon/utils)
 
 ; ———————————
 ; implementation
@@ -118,4 +118,5 @@
             (identikon (string->number s)
                        (string->number s)
                        (name)
-                       (first (rules-set)) (ext)))]))
+                       (first (rules-set)) (ext))
+            (printf "Saved ~apx identicon for ~a ~n" s (name)))]))

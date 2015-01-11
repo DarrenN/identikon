@@ -6,7 +6,7 @@
          openssl/sha1
          2htdp/image
          sugar
-         "../utils.rkt")
+         identikon/utils)
 
 ; Constants
 (define RHOMBUS-ANGLE 60)
@@ -122,7 +122,7 @@
 (module+ test
   (require quickcheck
            sugar)
-  
+
   ; rhombus-offset calculcation is correct
   (define rhombus-offset-outputs-agree
     (property ([num arbitrary-natural])

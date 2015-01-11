@@ -9,7 +9,7 @@
          2htdp/image
          lang/posn
          sugar
-         "../utils.rkt")
+         identikon/utils)
 
 ; Define shapes
 (define shapes (make-vector 16))
@@ -182,14 +182,14 @@
          [color (make-rgb (sixth points))]
          [positions (list
                      (list ((vector-ref shapes b) cell b-rot color color-bg)
-                           ((vector-ref shapes a) cell a-rot color color-bg) 
+                           ((vector-ref shapes a) cell a-rot color color-bg)
                            ((vector-ref shapes b) cell (modulo (+ b-rot 1) 4) color color-bg))
                      (list ((vector-ref shapes a) cell (modulo (+ a-rot 3) 4) color color-bg)
                            ((vector-ref shapes ctr) cell 0 color color-bg)
                            ((vector-ref shapes a) cell (modulo (+ a-rot 1) 4) color color-bg))
                      (list ((vector-ref shapes b) cell (modulo (+ b-rot 3) 4) color color-bg)
                            ((vector-ref shapes a) cell (modulo (+ a-rot 2) 4) color color-bg)
-                           ((vector-ref shapes b) cell (modulo (+ b-rot 2) 4) color color-bg)))]) 
+                           ((vector-ref shapes b) cell (modulo (+ b-rot 2) 4) color color-bg)))])
     (above
      (beside (first (first positions))
              (second (first positions))
