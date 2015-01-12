@@ -57,7 +57,7 @@ Create a 300x300 identicon for @racket["racket"] using the @racket["squares.rkt"
 
 @section{Rules modules}
 
-All rules modules must provide one a single draw-rules function and live in the @racket[rules] folder.
+All rules modules must provide a single draw-rules function and live in the @racket[rules] folder.
 
 @defproc[
   (draw-rules
