@@ -10,11 +10,12 @@
          racket/contract
          openssl/sha1
          2htdp/image
+         sugar
          identikon/utils)
 
 (provide (contract-out [identikon (->* (exact-positive-integer?
                                         exact-positive-integer?
-                                        string?)
+                                        any/c)
                                        (string?
                                         (or/c boolean? string?))
                                        image?)]))
@@ -58,8 +59,11 @@
 
 ; Turn a SHA1 hash into a list of 20 base 10 numbers
 (define (process-user user)
-  (map (λ (x) (string->number x 16))
-       (string-pairs (sha1 (open-input-bytes (string->bytes/utf-8 user))))))
+  (let [(str (if (string? user)
+                 user
+                 (->string user)))]
+    (map (λ (x) (string->number x 16))
+         (string-pairs (sha1 (open-input-bytes (string->bytes/utf-8 str)))))))
 
 ; Identikon - build an identicon of a specific size based on username and
 ; using a rule-set. Will automatically drop the identicon in the repl unless
@@ -81,6 +85,28 @@
     (if type
         (save-identicon (make-filename username width type) type rendered)
         rendered)))
+
+(module+ test
+  (require quickcheck
+           sugar
+           2htdp/image)
+
+  ; Ensure we get a list of 20 values
+  (define process-user-lengths-agree
+    (property ([val (choose-mixed (list (choose-integer 1 (random 10000)) (choose-string choose-printable-ascii-char (random 100))))])
+              (= 20 (length (process-user val)))))
+
+  (quickcheck process-user-lengths-agree)
+
+  ; Ensure identikon returns images
+  ; !! Warning: this is computationally expensive as it generates 100
+  ; !! identicons
+  (define identikon-images-agree
+    (property ([dim arbitrary-natural]
+               [str arbitrary-printable-ascii-string])
+              (image? (identikon dim dim str))))
+
+  (quickcheck identikon-images-agree))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Command line handling for Identikon
