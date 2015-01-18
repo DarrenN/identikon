@@ -3,15 +3,21 @@
 ; Identikon - parses username into a sha1-based identifier list and
 ; interfaces with rule-sets to create identicon image
 
-(provide identikon)
-
 (require racket/date
          racket/list
          racket/runtime-path
          racket/string
+         racket/contract
          openssl/sha1
          2htdp/image
          identikon/utils)
+
+(provide (contract-out [identikon (->* (exact-positive-integer?
+                                        exact-positive-integer?
+                                        string?)
+                                       (string?
+                                        (or/c boolean? string?))
+                                       image?)]))
 
 ; ———————————
 ; implementation
