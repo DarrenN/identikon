@@ -74,7 +74,6 @@
          [sides (cond [(< msides 6) 6]
                       [(> msides 16) 16]
                       [else msides])])
-    (print (last user))
     (let ([circles (for/list ([digit user]
                               [size sizes])
                      (draw-rule digit size sides color))])
