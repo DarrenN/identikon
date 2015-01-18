@@ -22,20 +22,15 @@
 (struct dim (w h) #:transparent)
 (struct canvas (outside inside border) #:transparent)
 
-; Grab the first 4 numbers from the user list and use them to generate a list of
-; color values for points in the indentikon
+; Use the first and last numbers in user to generate a 6x6 grid of color values
+; from min to max in 36 steps
 (define (build-color-range user)
-  (define color-a (first (take user 2)))
-  (define color-b (if (< 100 (second (take user 2)))
-                      (/ (second (take user 2)) 2)
-                      (second (take user 2))))
-  (slice-at (if (> color-a color-b)
-                (range color-b
-                       color-a
-                       (/ (- color-a color-b) (* (length (drop user 2)) 2)))
-                (range color-a
-                       color-b
-                       (/ (- color-b color-a) (* (length (drop user 2)) 2)))) 6))
+  (define s (remove-duplicates user))
+  (define color-a (min (first s) (last s)))
+  (define color-b (max (first s) (last s)))
+  (slice-at (range color-a color-b
+                   (/ (- color-b color-a) 36))
+            6))
 
 ; Turn a hue into an RGB color object
 (define (make-rgb hue [sat DEFAULT-SATURATION] [lig DEFAULT-LIGHTNESS])
@@ -250,4 +245,11 @@
               (let ([t (make-triplets lst)])
                 (empty? (filter false? (map (λ (x) (and (list? x)
                                                         (= (length x) 3))) t))))))
-  (quickcheck make-triplets-items-agree))
+  (quickcheck make-triplets-items-agree)
+
+  ; Test build-color-range
+  (define make-color-ranges-lengths-agree
+    (property ([user (choose-list (choose-integer 0 255) 20)])
+              (= 6 (length (build-color-range user)))))
+
+  (quickcheck make-color-ranges-lengths-agree))
