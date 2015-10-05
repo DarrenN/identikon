@@ -3,7 +3,6 @@
 @(require scribble/eval
           identikon
           2htdp/image
-          racket/runtime-path
           (prefix-in q: identikon/rules/qbert)
           (for-label racket identikon))
 
