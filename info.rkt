@@ -1,6 +1,6 @@
 #lang info
 (define collection "identikon")
-(define version "0.2")
+(define version "1.0.0")
 (define scribblings '(("scribblings/identikon.scrbl" ())))
 (define deps '("base"
                "sugar"

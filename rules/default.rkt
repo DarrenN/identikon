@@ -1,5 +1,9 @@
 #lang racket/base
 
+(require racket/list
+         2htdp/image
+         identikon/utils)
+
 ; Default rule-set for identikon.
 ; All rule-sets must provide a single function, draw-rules
 ; which is called by identikon. This function should always
@@ -9,10 +13,6 @@
 
 ; ———————————
 ; implementation
-
-(require racket/list
-         2htdp/image
-         identikon/utils)
 
 ; Constants
 (define BORDER-MAX 20)

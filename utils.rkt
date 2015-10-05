@@ -1,15 +1,12 @@
 #lang racket
 
-; A grab-bag of helper fucntions for identikon
-
-(provide (all-defined-out))
-
-; ———————————
-; implementation
-
 (require 2htdp/image
+         openssl/sha1
          css-tools/colors
          sugar)
+
+; A grab-bag of helper futions for identikon
+(provide (all-defined-out))
 
 ; Default Constants
 (define DEFAULT-MAX-USER-LENGTH 18)
@@ -57,12 +54,12 @@
 ; Convert a string into a list of string pairs
 ; (string-pairs "Apple") returns ("Ap" "pl" "e")
 (define (string-pairs s)
-    (define (loop p l)
-      (cond
-        [(empty? l) (reverse p)]
-        [(eq? (length l) 1) (reverse (cons (list->string l) p))]
-        [else (loop (cons (list->string (take l 2)) p) (drop l 2))]))
-    (loop '() (string->list (string-join (string-split s) ""))))
+  (define (loop p l)
+    (cond
+      [(empty? l) (reverse p)]
+      [(eq? (length l) 1) (reverse (cons (list->string l) p))]
+      [else (loop (cons (list->string (take l 2)) p) (drop l 2))]))
+  (loop '() (string->list (string-join (string-split s) ""))))
 
 ; Partition list into lists of n elements
 ; example: (chunk-mirror 3 '(1 2 3 4 5 6)) returns
@@ -94,25 +91,28 @@
          [inside (dim iw ih)])
     (canvas outside inside border)))
 
-; TEST: Make canvas should calculate a border and internal area and create data structures
-(module+ test
-  (define make-canvas-structs-agree
-    (property ([w arbitrary-natural]
-               [h arbitrary-natural])
-              (let* ([c (make-canvas w h)]
-                     [outside (canvas-outside c)]
-                     [inside (canvas-inside c)]
-                     [border (min (* w .1) DEFAULT-BORDER-MAX)])
-                (and (canvas? c)
-                     (dim? outside)
-                     (dim? inside)
-                     (= (dim-w outside) w)
-                     (= (dim-h outside) h)
-                     (= (canvas-border c) border)
-                     (= (->int (- (dim-w outside) (* border 2))) (dim-w inside))
-                     (= (->int (- (dim-h outside) (* border 2))) (dim-h inside))))))
+;; ///////////////////////
+;; // SHA1 Operations
+;; //////////////////////
 
-  (quickcheck make-canvas-structs-agree))
+;; Convert contents of port into a list of 20 base-10 numbers from a SHA1 hash
+(define (process-input-port pt)
+  (let* ([pairs (map (λ (x) (string->number x 16))
+                     (string-pairs (sha1 pt)))])
+    (when (input-port? pt)
+      (close-input-port pt))
+    pairs))
+
+;; Convert a string into a byte port
+(define (string->numberlist str)
+  (process-input-port (open-input-bytes (string->bytes/utf-8 (->string str)))))
+
+;; Convert a file into a byte portb
+(define (file->numberlist filename)
+  (define fpath (->string filename))
+  (if (and (> (string-length fpath) 0) (file-exists? (string->path fpath)))
+      (process-input-port (open-input-file fpath #:mode 'binary))
+      (raise-argument-error 'file->numberlist "file-exists?" filename)))
 
 ; Pad a list with its last value to size
 (define (pad-list l size)
@@ -145,8 +145,60 @@
 ;;; Tests
 
 (module+ test
+  (require rackunit
+           sugar)
+
+  (test-case
+      "file->numberlist returns a list of 20 values"
+    (check-true (= 20 (length (file->numberlist "utils.rkt")))))
+
+  (test-case
+      "file->numberlist throws exn if no file exists"
+    (check-exn
+     exn:fail?
+     (λ () (file->numberlist "wutang.rkt")))
+    (check-exn
+     exn:fail?
+     (λ () (file->numberlist "utils"))))
+
+  (test-case
+      "file->numberlist throws exn if filename empty"
+    (check-exn
+     exn:fail?
+     (λ () (file->numberlist "")))))
+
+(module+ test
   (require quickcheck
            sugar)
+
+  ; TEST: Make canvas should calculate a border and internal area and create data structures
+  (define make-canvas-structs-agree
+    (property ([w arbitrary-natural]
+               [h arbitrary-natural])
+              (let* ([c (make-canvas w h)]
+                     [outside (canvas-outside c)]
+                     [inside (canvas-inside c)]
+                     [border (min (* w .1) DEFAULT-BORDER-MAX)])
+                (and (canvas? c)
+                     (dim? outside)
+                     (dim? inside)
+                     (= (dim-w outside) w)
+                     (= (dim-h outside) h)
+                     (= (canvas-border c) border)
+                     (= (->int (- (dim-w outside) (* border 2))) (dim-w inside))
+                     (= (->int (- (dim-h outside) (* border 2))) (dim-h inside))))))
+
+  (quickcheck make-canvas-structs-agree)
+
+  ;; Ensure we get a list of 20 values
+  (define process-user-lengths-agree
+    (property ([val (choose-mixed (list
+                                   (choose-integer 1 (random 10000))
+                                   (choose-string choose-printable-ascii-char
+                                                  (random 100))))])
+              (= 20 (length (string->numberlist val)))))
+
+  (quickcheck process-user-lengths-agree)
 
   ; string-pairs length is equal to original string without spaces
   (define string-pairs-length-agree
@@ -219,7 +271,7 @@
 
   (quickcheck relative-position-values-agree)
 
-    ; pad-list should increase the list to size
+  ; pad-list should increase the list to size
   (define pad-list-lengths-agree
     (property ([lst (arbitrary-list arbitrary-natural)]
                [size arbitrary-natural])
@@ -236,7 +288,7 @@
   ; make-triplets should always return a list of 12 items
   (define make-triplets-lengths-agree
     (property ([lst (arbitrary-list arbitrary-natural)])
-                (= (length (make-triplets lst)) 12)))
+              (= (length (make-triplets lst)) 12)))
   (quickcheck make-triplets-lengths-agree)
 
   ; make-triplets should always return a list of 12 lists of 3 items

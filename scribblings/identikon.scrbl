@@ -2,6 +2,7 @@
 
 @(require scribble/eval
           identikon
+          2htdp/image
           (prefix-in q: identikon/rules/qbert)
           (for-label racket identikon))
 
@@ -25,23 +26,39 @@ At the command line:
 After that, you can update the package from the command line:
 @verbatim{raco pkg update identikon}
 
-@section{Generate identicon}
+Identikon has a full command line interface which you can view with
+@verbatim{raco identikon --help}
 
-Identikon exposes a single function that generates an identicon based on a rules module.
+@section{Generating identicons}
 
 @defproc[
          (identikon
           [width exact-positive-integer?]
           [height exact-positive-integer?]
-          [username string?]
-          [rules string? "default"]
-          [type (or/c #f string?) #f])
-         image?]
+          [input (or/c symbol? string?)]
+          [rules (or/c symbol? string?) "default"]
+          [#:filename boolean? #t #f])
+         image?]{
 
+Identikon provides a single function, @racket[identikon], which produces images
+based on input. If input is a string or symbole, a SHA1 hash will be produced
+and used to geneate an image. If a filename is provided a SHA1 of the file will
+be produced and used as input for generating images.
 
-@racket[rules] is the name of the rules module to use in generating the identicon. This defaults to @racket["default"].
+Produces an @racket[identikon] with dimensions specified by @racket[width] and
+@racket[height].
 
-@racket[type] is the filetype of the image to save, and can be either @racket["png"] or @racket["svg"]. If omitted no file will be saved and the identicon will be output to the REPL.
+@racket[input] is converted into a list of numbers based on a SHA1 hash and
+passed to a @racket[rules] module for processing into an @racket[image?].
+
+@racket[rules] is the name of the rules module to use in generating the
+identicon. This defaults to @racket["default"].
+
+If @racket[#:filename] is @racket[#t] then @racket[identikon] will treat the
+value of @racket[input] as a filename and attempt fo open it for processing.
+}
+
+@bold{Examples:}
 
 Create a 300x300px identicon for @racket["racket"] using the @racket["default.rkt"] rule module.
 
@@ -52,7 +69,58 @@ Create a 300x300px identicon for @racket["racket"] using the @racket["default.rk
 Create a 300x300 identicon for @racket["racket"] using the @racket["squares.rkt"] rule module.
 
 @examples[#:eval my-eval
-(identikon 300 300 "racket" "squares")
+(identikon 300 300 "racket" 'squares)
+]
+
+Create a 300x300 identicon from this file using the @racket["qbert.rkt"] rule module.
+
+@examples[#:eval my-eval
+(identikon 300 300 "identikon.scrbl" 'qbert #:filename #t)
+]
+
+@defproc[
+(save-identikon
+ [filename string?]
+ [type (or/c symbol? string?)]
+ [image image?]
+ [#:quality number? natural-number/c 75])
+boolean?]{
+
+Save an @racket[identikon] image to disk. Available types are @code[]{svg},
+@code[]{png} and @code[]{jpeg}. If the file already exists, a new version
+of the file will be saved with a timestamp (seconds) appended.
+
+@racket[#:quality] only affects @code[]{jpeg} images.
+}
+
+@racketblock[
+ (save-identikon "foo" 'png
+                 (identikon 300 300 'racket 'qbert))
+]
+
+@defproc[
+(identikon->string
+ [type (or/c symbol? string?)]
+ [image image?]
+ [#:quality number? natural-number/c 75])
+string?]{
+
+Return an @racket[identikon] in a string format. This is useful if you want to
+inject the image directly into an HTML page as an @code[]{<svg />} element or
+as a data-uri.
+
+Available types are @code[]{svg}, @code[]{png} and @code[]{jpeg}.
+
+@code[]{svg} will emit a well formed @hyperlink["http://www.w3.org/TR/SVG11/"]{SVG element}.
+
+@code[]{png} and @code[]{jpeg} types will emit a string of base-64 encoded bytes
+suitable for use in an @hyperlink["https://en.wikipedia.org/wiki/Data_URI_scheme"]{HTML data-uri}.
+
+@racket[#:quality] only affects @code[]{jpeg} images.
+}
+
+@racketblock[
+(identikon->string (identikon 300 300 'racket 'qbert) 'svg)
 ]
 
 @section{Rules modules}
