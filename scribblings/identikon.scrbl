@@ -3,12 +3,12 @@
 @(require scribble/eval
           identikon
           2htdp/image
+          racket/runtime-path
           (prefix-in q: identikon/rules/qbert)
           (for-label racket identikon))
 
 @(define my-eval (make-base-eval))
 @(my-eval `(require identikon identikon/rules/qbert))
-
 
 @title{Identikon}
 
@@ -70,12 +70,6 @@ Create a 300x300 identicon for @racket["racket"] using the @racket["squares.rkt"
 
 @examples[#:eval my-eval
 (identikon 300 300 "racket" 'squares)
-]
-
-Create a 300x300 identicon from this file using the @racket["qbert.rkt"] rule module.
-
-@examples[#:eval my-eval
-(identikon 300 300 "identikon.scrbl" 'qbert #:filename #t)
 ]
 
 @defproc[
