@@ -9,7 +9,6 @@
 @(define my-eval (make-base-eval))
 @(my-eval `(require identikon identikon/rules/qbert))
 
-
 @title{Identikon}
 
 @author[(author+email "Darren Newton" "info@v25media.com")]
@@ -70,12 +69,6 @@ Create a 300x300 identicon for @racket["racket"] using the @racket["squares.rkt"
 
 @examples[#:eval my-eval
 (identikon 300 300 "racket" 'squares)
-]
-
-Create a 300x300 identicon from this file using the @racket["qbert.rkt"] rule module.
-
-@examples[#:eval my-eval
-(identikon 300 300 "identikon.scrbl" 'qbert #:filename #t)
 ]
 
 @defproc[
