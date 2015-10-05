@@ -25,8 +25,8 @@
                                             image?)
                                             (#:quality number?)
                                             boolean?)]
-                       [identikon->string (->* (image?
-                                                (or/c symbol? string?))
+                       [identikon->string (->* ((or/c symbol? string?)
+                                                image?)
                                                (#:quality number?)
                                                string?)]))
 

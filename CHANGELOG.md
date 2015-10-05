@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.1] - 2015-10-05
+### Fixed
+- Corrected contract for `identikon->string`
+- Removed `identikon->string` example from Scribble because confusion on eval
+
 ## [1.0.0] - 2015-10-04
 ### Changed
 - Significant changes to API for `identikon`. Please see updated documentation. Related to [#16](https://github.com/DarrenN/identikon/issues/16)
