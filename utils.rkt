@@ -52,14 +52,14 @@
                           (row->image (rest row)))]))
 
 ; Convert a string into a list of string pairs
-; (string-pairs "Apple") returns ("Ap" "pl" "e")
-(define (string-pairs s)
-  (define (loop p l)
+(define (string-pairs str)
+  (define chars (filter (λ (x) (not (eq? x #\space))) (string->list str)))
+  (define (loop pairs list)
     (cond
-      [(empty? l) (reverse p)]
-      [(eq? (length l) 1) (reverse (cons (list->string l) p))]
-      [else (loop (cons (list->string (take l 2)) p) (drop l 2))]))
-  (loop '() (string->list (string-join (string-split s) ""))))
+      [(empty? list) pairs]
+      [(eq? (length list) 1) (reverse (cons (list->string list) pairs))]
+      [else (loop (cons (list->string (take list 2)) pairs) (drop list 2))]))
+  (loop '() chars))
 
 ; Partition list into lists of n elements
 ; example: (chunk-mirror 3 '(1 2 3 4 5 6)) returns
