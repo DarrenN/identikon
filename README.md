@@ -49,17 +49,18 @@ Requiring `identikon` in [Dr. Racket](http://docs.racket-lang.org/drracket/) or 
 ```shell
 -h  Help
 -s  (multi) Size (all identikons are currently squares)
--n  String to convert to identicon (will expand this to take files)
+-i  String to convert to identicon
+-f  File or input stream used to generate identikon
 -r  (optional) Ruleset to use
 -t  (optional) Filetype to save as: "png" or "svg"; defaults to png
 
-$ raco identikon -s 300 -n "FooBarBaz"
+$ raco identikon -s 300 -i "FooBarBaz"
 
-$ raco identikon -s 300 -n "FooBarBaz" -r "squares"
+$ raco identikon -s 300 -i "FooBarBaz" -r "squares"
 
-$ raco identikon -s 300 -n "FooBarBaz" -r "squares" -t "svg"
+$ raco identikon -s 300 -i "FooBarBaz" -r "squares" -t "svg"
 
-$ raco identikon -s 300 -s 200 -s 100 -n "FooBarBaz" -r "stars" -t "svg"
+$ raco identikon -s 300 -s 200 -s 100 -i "FooBarBaz" -r "stars" -t "svg"
 ```
 
 ## Built-in rule sets
