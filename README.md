@@ -1,4 +1,4 @@
-![a](https://dl.dropboxusercontent.com/u/4221594/github/darren_200.png) ![b](https://dl.dropboxusercontent.com/u/4221594/github/norma_200.png) ![c](https://dl.dropboxusercontent.com/u/4221594/github/koji_200.png)
+![a](http://static.v25media.com/identikon/darren_200.png) ![b](http://static.v25media.com/identikon/norma_200.png) ![c](http://static.v25media.com/identikon/koji_200.png)
 
 identikon
 =========
@@ -69,36 +69,36 @@ Each identicon has a rules file (ex: `default.rkt`) which is responsible for tak
 
 #### default.rkt
 
-![d](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_default.png)
+![d](http://static.v25media.com/identikon/norma_300_default.png)
 
 #### qbert.rkt
 
-![s](https://dl.dropboxusercontent.com/u/4221594/github/racket_300_qbert.png)
+![s](http://static.v25media.com/identikon/racket_300_qbert.png)
 
 #### squares.rkt
 
-![s](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_squares.png)
+![s](http://static.v25media.com/identikon/norma_300_squares.png)
 
 #### circles.rkt
 
-![c](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_circles.png)
+![c](http://static.v25media.com/identikon/norma_300_circles.png)
 
 #### angles.rkt
 
-![a](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_angles.png)
+![a](http://static.v25media.com/identikon/norma_300_angles.png)
 
 #### angles2.rkt
 
-![a](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_angles2.png)
+![a](http://static.v25media.com/identikon/norma_300_angles2.png)
 
 #### nineblock.rkt
 
-![n](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_nineblock.png)
+![n](http://static.v25media.com/identikon/norma_300_nineblock.png)
 
 #### stars.rkt
 
-![s](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_stars.png)
+![s](http://static.v25media.com/identikon/norma_300_stars.png)
 
 #### rings.rkt
 
-![r](https://dl.dropboxusercontent.com/u/4221594/github/norma_300_rings.png)
+![r](http://static.v25media.com/identikon/norma_300_rings.png)
