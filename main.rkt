@@ -21,10 +21,10 @@
                                         #:filename boolean?)
                                        image?)]
                        [save-identikon (->* (string?
-                                            (or/c symbol? string?)
-                                            image?)
+                                             (or/c symbol? string?)
+                                             image?)
                                             (#:quality number?)
-                                            boolean?)]
+                                            (or/c void? exn:fail?))]
                        [identikon->string (->* ((or/c symbol? string?)
                                                 image?)
                                                (#:quality number?)
@@ -89,19 +89,19 @@
 
 #|
 
- Identikon - build an identicon of a specific size based on username and
- using a rule-set. Will automatically drop the identicon in the repl unless
- you tell it to save
+Identikon - build an identicon of a specific size based on username and
+using a rule-set. Will automatically drop the identicon in the repl unless
+you tell it to save
 
- ex: (identikon 300 300 "dfsdf")
-     (identikon 300 300 'dfsdf 'qbert)
+ex: (identikon 300 300 "dfsdf")
+(identikon 300 300 'dfsdf 'qbert)
 
 |#
 (define (identikon width height input
                    [rules "default"] #:filename [filename #f])
   (let* ([processed-input (if filename
-                             (file->numberlist input)
-                             (string->numberlist input))]
+                              (file->numberlist input)
+                              (string->numberlist input))]
          [rule-file (create-rules-filename rules)])
 
     ;; Load rules file if provided
@@ -132,7 +132,20 @@
       "identikon->string returns a string"
     (check-pred string? (identikon->string 'jpeg (identikon 100 100 'rza)))
     (check-pred string? (identikon->string 'png (identikon 100 100 'rza)))
-    (check-pred string? (identikon->string 'svg (identikon 100 100 'rza)))))
+    (check-pred string? (identikon->string 'svg (identikon 100 100 'rza))))
+
+  (test-case
+      "save-identikon returns correct values"
+    (check-pred
+     void?
+     (save-identikon "/tmp/koji" 'svg
+                     (identikon 10 10 "koji")))
+
+    (check-exn
+     exn:fail?
+     (λ ()
+       (save-identikon "/tmp/koji" 'zzz
+                       (identikon 10 10 "koji"))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Command line handling for Identikon
@@ -153,12 +166,12 @@
      #:program "identikon"
      #:once-each
      [("-i" "--input-str") in
-                      "String input-str to convert to identikon"
-                      (input-str in)]
+                           "String input-str to convert to identikon"
+                           (input-str in)]
 
      [("-f" "--file") fl
-      "File or input stream used to generate identikon"
-      (file-name fl)]
+                      "File or input stream used to generate identikon"
+                      (file-name fl)]
 
      [("-t" "--type") ty
                       "File type: png or svg"
@@ -179,15 +192,15 @@
     [(empty? (size-flags)) (printf "No sizes were provided, -s ~n")]
     [(empty? (input-str)) (printf "No input provided to process, -i ~n")]
     [(not (empty? (file-name))) (for ([s (size-flags)])
-            (save-identikon (file-name) (ext) (identikon (string->number s)
-                                                    (string->number s)
-                                                    (file-name)
-                                                    (first (rules-set))
-                                                    #:filename #t))
-            (printf "Saved ~apx identicon for ~a ~n" s (file-name)))]
+                                  (save-identikon (file-name) (ext) (identikon (string->number s)
+                                                                               (string->number s)
+                                                                               (file-name)
+                                                                               (first (rules-set))
+                                                                               #:filename #t))
+                                  (printf "Saved ~apx identicon for ~a ~n" s (file-name)))]
     [else (for ([s (size-flags)])
             (save-identikon (input-str) (ext) (identikon (string->number s)
-                                                     (string->number s)
-                                                     (input-str)
-                                                     (first (rules-set))))
+                                                         (string->number s)
+                                                         (input-str)
+                                                         (first (rules-set))))
             (printf "Saved ~apx identicon for ~a ~n" s (input-str)))]))

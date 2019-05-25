@@ -1,6 +1,6 @@
 #lang info
 (define collection "identikon")
-(define version "1.0.1")
+(define version "1.0.2")
 (define scribblings '(("scribblings/identikon.scrbl" ())))
 (define deps '("draw-lib"
                "gui-lib"
